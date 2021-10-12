@@ -44,7 +44,7 @@ then
 fi
 
 # insert user inputs
-sqlite3 $DB "INSERT INTO users (name, email, username, password) VALUES ('$NAME', '$EMAIL', '$USERNAME', '$PASSWORD');"
+sqlite3 $DB "INSERT INTO users (name, email, username, password) VALUES ('$NAME', '$EMAIL', '$USERNAME', '$HASH');"
 
 if [[ $? != 0 ]]
 then 
