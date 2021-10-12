@@ -1,5 +1,18 @@
 #!/bin/bash
 
+if [[ ! "$1" =~ "-db" ]]
+then
+    echo "NO DB provided "
+    exit   127
+fi
+
+DB="$2"
+
+if [[ -z "$DB" ]]
+then 
+    echo "No DB Provided"
+    exit 127;
+fi
 
 read -p "name: " NAME
 read -p "username: (default = <your name>) " USERNAME

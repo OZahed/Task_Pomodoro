@@ -1,34 +1,26 @@
 #!/bin/bash
 PARAMS=""
+DB_PATH="./DATA/Task.db"
 DONE_FLAG=0
 while (( "$#" )); do
   case "$1" in
-    -d|--done)
-      DONE_FLAG=1
-      shift
-      ;;
     --init)
-     source ./init.sh 
+      source ./init.sh -db "$DB_PATH";
       exit 0;
       shift 
-      ;;
-    -n|--name)
-      if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-        NAME=$2
-        shift 2
-      else
-        echo "Error: Argument for $1 is missing" >&2
-        exit $?
-      fi
-      ;;
-    -*|--*=) # unsupported flags
-      echo "Error: Unsupported flag $1" >&2
-      exit 1
-      ;;
+    ;;
+    task)
+        source ./newTask.sh "$@" -db $DB_PATH;
+        exit 0;
+    ;;
+    pomo | pomodoro)
+        source ./newPomodoro.sh "$@" -db $DB_PATH;
+        exit 0;
+    ;;
     *) # preserve positional arguments
       PARAMS="$PARAMS $1"
       shift
-      ;;
+    ;;
   esac
 done
 # set positional arguments in their proper place
