@@ -8,7 +8,7 @@ RED='\033[0;31m'
 ORANGE='\033[0;33m'
 NC='\033[0m' # No Color
 
-MIN=25
+MIN=30
 PARAMS=""
 while (( "$#" )); do
 case "$1" in 
@@ -18,6 +18,10 @@ case "$1" in
     ;;
 -n|--name)
     NAME="$2"
+    shift
+    ;;
+-db)
+    DB="$2"
     shift
     ;;
 *)  
@@ -37,9 +41,13 @@ SECOND=$((60 * MIN))
 printf "\n\n"
 while [  $SECOND -gt 0 ]
 do
-    MIN=$(( SECOND / 60 ))
-    SEC=$(( SECOND - MIN*60 ))
-    printf "\r\t$NAME: ${ORANGE}$MIN : $SEC ${NC}."  $((SECOND--))
+    MINS=$(( SECOND / 60 ))
+    SEC=$(( SECOND - MINS*60 ))
+    printf "\r\t$NAME: ${ORANGE}$MINS : $SEC ${NC}."  $((SECOND--))
     sleep 1s
 done
+
+
+sqlite3 $DB "INSERT INTO pomodoro (title, Duartion) VALUES ('$NAME','$MIN');"
+
 
