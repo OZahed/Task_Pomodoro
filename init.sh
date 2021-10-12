@@ -6,6 +6,7 @@ read -p "username: (default = <your name>) " USERNAME
 read -p "email: " EMAIL
 read -s -p "password:(default = <''>)  " PASSWORD
 
+echo $PASSWORD
 ##########################
 #   if email is valid    #
 ##########################
@@ -17,11 +18,41 @@ then
     exit 128
 fi
 
-PREFIX="usr"
-HASH=$(htpasswd -nbBC 10 $PREFIX $PASSWORD)
+if [[ -z ${#PASSWORD} ]]
+then 
+    echo "you provided no password"
+fi
 
-echo "
-your name $NAME, 
-your username: $USERNAME,
-your email $EMAIL,
-your password $HASH"
+
+PREFIX="usr"
+HASH="$(htpasswd -nbBC 10 $PREFIX $PASSWORD)"
+
+########################
+#      create DB       #
+########################
+DIR="./DATA"
+DB="./DATA/Task.db"
+
+if [[ ! -d $DIR ]]
+then 
+    mkdir $DIR 
+fi
+
+if [[ ! -f $DB  ]]
+then
+    sqlite3 $DB < create_data.sql
+fi
+
+# insert user inputs
+sqlite3 $DB "INSERT INTO users (name, email, username, password) VALUES ('$NAME', '$EMAIL', '$USERNAME', '$PASSWORD');"
+
+if [[ $? != 0 ]]
+then 
+    echo "exited with $?"
+    # sqlite3 does not exists 
+    echo 'could not create sqlite instance 
+Check if you have the "sqlite3" package installed'
+    exit 127
+fi
+
+echo "Your account created"
