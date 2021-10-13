@@ -103,7 +103,7 @@ then
     else
        SEARCH="$SEARCH AND "
     fi
-    SEARCH=$SEARCH" u.username = $USERNAME "
+    SEARCH="$SEARCH u.username = '$USERNAME' "
 fi
 
 
