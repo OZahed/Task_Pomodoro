@@ -79,9 +79,14 @@ then
 fi
 
 
+re='^[+-]?[0-9]+$'
 if [[ ! -z "$FROM_NOW" ]]
 then
-    DUE_DATE="$(date --date "$FRON_NOW day" "+%F")"
+    if ! [[ $FROM_NOW =~ $re ]]; then    
+        echo "due time should be an int"; exit 127
+    fi
+    DUE_DATE="$(date --date "$FROM_NOW day " "+%F")"
+    echo $DUE_DATE
     if [[ $SEARCH == "" ]]
     then    
         SEARCH="WHERE t.due_time >= '$DUE_DATE'"
@@ -128,18 +133,18 @@ then
     SEARCH=$SEARCH"t.done = TRUE"
 fi
 
-QUERY="select 
+QUERY="select
     t.tasks_id, 
-    u.email, 
     u.username,
     t.title, 
-    t.description, 
-    p.name,
-    b.title,
+    t.description,
     t.due_time,
     t.done,
-    t.done_at
-
+    t.done_at, 
+    t.created_at,
+    p.name,
+    b.title,
+    b.color
 FROM tasks t 
 JOIN users u 
 USING (users_id)
@@ -149,7 +154,11 @@ JOIN priority p
 ON (t.priority_id = p.priority_id)
 $SEARCH;"
 
+function pretty_csv {
+    column -t -s, -n "$@" | less -F -S -X -K
+}
 
-STRING="$(sqlite3 $DB "$QUERY")"
 
-echo $STRING
+# Prittier out put
+sqlite3 --csv -header $DB "$QUERY" | pretty_csv | less
+

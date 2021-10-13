@@ -9,6 +9,10 @@ while (( "$#" )); do
             DB="$2"
             shift
         ;;
+        -r|--remove)
+            REMOVE=1
+            shift
+        ;;
         -b|--board)
             BOAERD_ID="$2"
             shift
@@ -21,12 +25,8 @@ while (( "$#" )); do
             TITLE="$2"
             shift
         ;;
-        -d|--description)
+        -de|--description)
             DESCRIPTION="$2"
-            shift
-        ;;
-        -done|--done)
-            DONE=1
             shift
         ;;
         -du|--due-time)
@@ -53,6 +53,10 @@ while (( "$#" )); do
             USERNAME="$2"
             shift
         ;;
+        -d)
+            DONE=1
+            shift
+        ;;
         *) # preserve positional arguments
             PARAMS="$PARAMS $1"
             shift
@@ -72,6 +76,53 @@ then
     echo "No DB Provicded"
     exit 1
 fi
+
+###########################
+#  check if task is done  #
+###########################
+if [[ $DONE -eq 1  ]]
+then 
+    if [[ -z $ID  ]] && [[ -z $TITLE ]]
+    then 
+        echo "you should provide id'-i' or title '-t' to mark task as Done '-d | --done' "
+        exit 127
+    fi
+
+    if [[ -z $TITLE  ]]
+    then
+        sqlite3 $DB "UPDATE tasks SET done=TRUE WHERE tasks_id=$ID"
+        echo "Task id=$ID,  Marked  as Done"
+    fi
+    if [[ -z $ID ]]
+    then
+        sqlite3 $DB "UPDATE tasks SET done=TRUE WHERE title='$TITLE'"
+        echo "Task(s) title=$TITLE Marked Done"
+    fi
+    exit 0
+fi
+
+
+if [[ $REMOVE -eq 1 ]]
+then
+    if [[ -z $ID ]] && [[ -z $TITLE ]]
+    then 
+        echo "you should provide id'-i' or title '-t' to mark task as Done '-r | --remove' "
+        exit 127
+    fi
+    if [[ -z $ID ]]
+    then 
+        sqlite3 $DB "DELETE FROM tasks WHERE title='$TITLE'"
+        echo "Task(s) title=$TITLE Deleted"
+    fi
+    if [[ -z $TITLE ]]
+    then
+        sqlite3 $DB "DELETE FROM tasks WHERE tasks_id='$ID'"
+        echo "Task id=$ID, Deleted"
+    fi
+    exit 0
+fi
+
+
 
 if [[ -z "$USERNAME" ]]
 then 
@@ -108,11 +159,11 @@ fi
 
 if [[ -z $BOAER_ID ]]
 then 
-    echo "selected Default board"
+    echo "Task added to the default board"
     BOAER_ID=1
 fi
 
-DUE_DATE="$(date --date="$FROM_NOW days" -u "+%F-%H-%M-%S")"
+DUE_DATE="$(date --date "$FROM_NOW day " "+%F")"
 
 sqlite3 $DB "INSERT INTO tasks  (
     users_id,

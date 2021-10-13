@@ -17,6 +17,10 @@ while (( "$#" )); do
         source ./newPomodoro.sh "$@" -db $DB_PATH;
         exit 0;
     ;;
+    get)
+      source ./getItem.sh "$@" -db $DB_PATH;
+      exit 0;
+    ;;
     *) # preserve positional arguments
       PARAMS="$PARAMS $1"
       shift
