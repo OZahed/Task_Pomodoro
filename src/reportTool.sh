@@ -30,9 +30,6 @@ esac
 done
 eval set -- "$PARAMS"
 
-echo $SINCE
-echo $TODAY
-
 
 if [[ -z $DB ]]
 then 
@@ -50,8 +47,6 @@ fi
 if [[ $SINCE -gt 0 ]]
 then
     DATE="$( date  --date "-$SINCE day" "+%F" )"
-    echo "$( date  --date "-$SINCE day" "+%F" )"
-    echo $DATE
     CRT=">="
 fi
 
