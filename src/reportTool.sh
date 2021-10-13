@@ -22,6 +22,10 @@ case "$1" in
     TODAY=0
     shift
     ;;
+-csv)
+    CSV_PATH="$2"
+    shift
+    ;;
 *)
     PARAMS="$PARAMS $1"
     shift
@@ -59,10 +63,10 @@ then
 fi
 
 QUERY="SELECT
-COUNT(tasks_id) FILTER (WHERE done=FALSE) AS OPEN,
-group_concat (  tasks_id || ']:' || title || '::' || due_time || ' - ') FILTER(WHERE done=FALSE) AS open_list,
-COUNT(tasks_id) FILTER (WHERE done=TRUE) AS DONE, 
-group_concat (  tasks_id || ']:' || title || '::' || due_time || ' - ') FILTER(WHERE done=TRUE) AS closed_list
+    COUNT(tasks_id) FILTER (WHERE done=FALSE) AS open_count,
+    group_concat (tasks_id || '_' || title || '_' || due_time || ' ') FILTER(WHERE done=FALSE) AS open_list,
+    COUNT(tasks_id) FILTER (WHERE done=TRUE) AS close_count, 
+    group_concat (tasks_id || '_' || title || '_' || due_time || ' ') FILTER(WHERE done=TRUE) AS close_list
 FROM tasks
 WHERE
 due_time $CRT '$DATE' OR done_at $CRT '$DATE';"
@@ -70,7 +74,13 @@ due_time $CRT '$DATE' OR done_at $CRT '$DATE';"
 
 
 function pretty_csv {
-    column -t -s, -n "$@" | less -F -S -X -K
+    column -t  -s '|' 
 }
 
-sqlite3  --header -csv $DB "$QUERY"  | pretty_csv
+
+if [[ ! -z "$CSV_PATH" ]]
+then
+    sqlite3  --header -csv $DB "$QUERY" > $CSV_PATH 
+else
+    sqlite3  --header  $DB "$QUERY" | pretty_csv | less
+fi

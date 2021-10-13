@@ -1,6 +1,2 @@
-3
-0
-2021-10-10
-2021-10-10
-OPEN  open_list                                DONE                            closed_list
-2     "3]:Hello world::2021-10-14-10-53-24 -   6]:Hello world::2021-10-14 - "  1            "4]:Hello world::2021-10-14-10-53-29 - "
+open_count  open_list                                                     close_count  close_list
+2           3_Hello world_2021-10-14-10-53-24 ,6_Hello world_2021-10-14   1            4_Hello world_2021-10-14-10-53-29 
