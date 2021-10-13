@@ -21,6 +21,12 @@ CREATE TABLE tag (
     description TEXT 
 );
 
+CREATE TABLE pomodoro (
+    pomodoro_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    Duartion INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE  task_tag_lookup  (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

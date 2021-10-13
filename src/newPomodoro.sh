@@ -30,6 +30,7 @@ case "$1" in
     ;;
 esac 
 done
+eval set -- "$PARAMS"
 
 if [[ -z "$NAME" ]]
 then

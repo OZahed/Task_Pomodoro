@@ -112,7 +112,7 @@ then
     BOAER_ID=1
 fi
 
-DUE_DATE="$(date --date="$FROM_NOW days" -u )"
+DUE_DATE="$(date --date="$FROM_NOW days" -u "+%F-%H-%M-%S")"
 
 sqlite3 $DB "INSERT INTO tasks  (
     users_id,
