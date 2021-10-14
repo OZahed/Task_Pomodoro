@@ -15,26 +15,12 @@ CREATE TABLE priority (
 
 INSERT INTO priority (name) VALUES ("Low") , ("Normal"), ("Heigh"), ("Urgent");
 
-CREATE TABLE tag (
-    tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL, 
-    description TEXT 
-);
 
 CREATE TABLE pomodoro (
     pomodoro_id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     Duartion INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE  task_tag_lookup  (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tasks_id INTEGER NOT NULL,
-    tag_id INTEGER, 
-
-    CONSTRAINT fk_tag FOREIGN KEY (tag_id) REFERENCES tag(tag_id) ON DELETE CASCADE,
-    CONSTRAINT fk_task FOREIGN KEY (tasks_id) REFERENCES task(tasks_id) ON DELETE CASCADE
 );
 
 -- TODO: board Like Trello 
@@ -76,7 +62,6 @@ CREATE VIEW task_info_view AS
         t.done_at,
         b.title AS board,
         b.color
-
     FROM 
         tasks t 
         JOIN users u 
