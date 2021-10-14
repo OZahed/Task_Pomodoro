@@ -21,7 +21,7 @@ while (( "$#" )); do
       source ./getItem.sh "$@" -db $DB_PATH;
       exit 0;
     ;;
-    log)
+    log|report)
       source ./reportTool.sh "$@" -db $DB_PATH;
       exit 0;
     ;;
