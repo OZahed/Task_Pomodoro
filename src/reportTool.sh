@@ -62,15 +62,20 @@ then
     exit 127
 fi
 
-QUERY="SELECT
-    COUNT(tasks_id) FILTER (WHERE done=FALSE) AS open_count,
-    group_concat (tasks_id || '_' || title || '_' || due_time || ' ') FILTER(WHERE done=FALSE) AS open_list,
-    COUNT(tasks_id) FILTER (WHERE done=TRUE) AS close_count, 
-    group_concat (tasks_id || '_' || title || '_' || due_time || ' ') FILTER(WHERE done=TRUE) AS close_list
-FROM tasks
-WHERE
-due_time $CRT '$DATE' OR done_at $CRT '$DATE';"
+if [[ $PIVOT -eq 0 ]]
+then 
 
+    QUERY="SELECT
+        COUNT(tasks_id) FILTER (WHERE done=FALSE) AS open_count,
+        group_concat (tasks_id || '_' || title || '_' || due_time || ' ') 
+            FILTER(WHERE done=FALSE) AS \"open_list ( id_title_due time )\",
+        COUNT(tasks_id) FILTER (WHERE done=TRUE) AS close_count, 
+        group_concat (tasks_id || '_' || title || '_' || due_time || ' ')
+            FILTER(WHERE done=TRUE) AS \"close_list (id_title_due time)\"
+    FROM tasks
+    WHERE
+    due_time $CRT '$DATE' OR done_at $CRT '$DATE';"
+fi
 
 
 function pretty_csv {
