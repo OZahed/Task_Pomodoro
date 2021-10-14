@@ -21,6 +21,10 @@ while (( "$#" )); do
       source ./getItem.sh "$@" -db $DB_PATH;
       exit 0;
     ;;
+    log)
+      source ./reportTool.sh "$@" -db $DB_PATH;
+      exit 0;
+    ;;
     *) # preserve positional arguments
       PARAMS="$PARAMS $1"
       shift

@@ -60,6 +60,29 @@ CREATE TABLE tasks (
     done_at TIMESTAMP ,
 
     CONSTRAINT fk_priority FOREIGN KEY (priority_id) REFERENCES priority(priority_id) ON DELETE SET NULL ,
-    CONSTRAINT fk_users FOREIGN KEY (users_id) REFERENCES users(users_id) ON DELETE CASCADE
+    CONSTRAINT fk_users FOREIGN KEY (users_id) REFERENCES users(users_id) ON DELETE CASCADE,
+    CONSTRAINT fk_users FOREIGN KEY (board_id) REFERENCES board(board_id) ON DELETE CASCADE
 );
 
+CREATE VIEW task_info_view AS
+    SELECT t.tasks_id  , 
+        u.username  ,
+        t.title AS task_title ,
+        p.name  AS priority,
+        t.description  ,
+        t.created_at  ,
+        t.due_time  ,
+        t.done ,
+        t.done_at,
+        b.title AS board,
+        b.color
+
+    FROM 
+        tasks t 
+        JOIN users u 
+        USING (users_id)
+        JOIN board b
+        USING (board_id)
+        JOIN priority p 
+        USING (priority_id)
+    ORDER BY created_at DESC;
