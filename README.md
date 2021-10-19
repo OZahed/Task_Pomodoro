@@ -7,8 +7,8 @@ pomodoro.sh is the entry script
 
 features: 
     
-> use of boards
+> boards
 > 
-> use of priority
+> priority
 > 
->   report tools
+> report tools
