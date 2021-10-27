@@ -1,8 +1,6 @@
 #! /bin/bash
-# TODO: [ ] add weeks Log and month log
-# TODO: [ ] add Done / Close percentage
-# TODO: [ ] add report 
-
+# TODO: [X] add report 
+# TODO: [ ] calculate once 
 
 TITLE=""
 FROM_NOW=""
@@ -20,7 +18,7 @@ NC='\033[0m' # No Color
 PARAMS=""
 while (( "$#" )); do
 case "$1" in 
--t|--title)
+-t|title)
     TITLE="$2"
     shift
     ;;
@@ -28,12 +26,12 @@ case "$1" in
     FROM_NOW="$2"
     shift
     ;;
--d|--done)
+-d|done)
     IS_DONE=1
     NUMBER="$2"
     shift
     ;;
--l|--log)
+-l|log)
     LOG=1
     FROM_NOW="$2"
     shift
@@ -54,6 +52,34 @@ esac
 done
 eval set -- "$PARAMS"
 
+if  [[ $IS_DONE -eq 0 && $LOG -eq 0 && "$TITLE" = "" ]]
+then
+    echo "basic usage:
+add new task:
+    tsk_logger -t or title <title> [options]
+        options:
+            -c  or --category <category> : String
+            -p or --priority <priority value> : String 
+            -du or --due-time <N> : number of days from now
+
+see tasks: 
+    tsk_logger -l or log <optional number>
+    without options it shows todays log
+    options:
+        if no number is provided It will show today's log
+        n : Number of days from now. example: tsk_logger log 7 shows all open \
+            tasks within 7 days
+set a task to done:
+    tsk_logger -d  or done <ID>
+        ID: Number of task that will be shown with logs
+
+How it works: 
+    All tasks are stored into ~/.my_tasks/<YEAR>/Open.log and Done.log
+    to search through tasks it uses awk and sed
+    to set done or count tasks it uses sed
+"
+exit 1
+fi
 
 ###
 # We are going to keep data from Monday to monday in each Dir
@@ -114,9 +140,9 @@ then
     sed -n -e "/DONE: $DATE/p" $DONE_FILE
     
     DUE_TIME="DUE: $DATE"
-    OVER="$(awk -v time="$DUE_TIME" -F ' -- ' '{ if ($3 < time) print $0}' $OPEN_FILE | wc -l)"
-    printf "${RED}Due Time before $DATE: $OVER task(s): ${NC}\n"
-    awk -v time="$DUE_TIME" -F ' -- ' '{ if ($3 < time) print $0 }' $OPEN_FILE
+    OVER="$(awk -v time="$DUE_TIME" -F ' - ' '{ if ($3 < time) print $0}' $OPEN_FILE )"
+    printf "${RED}Due Time before $DATE: $( wc -l <<< $OVER ) task(s): ${NC}\n"
+    printf "$OVER\n" | sort -t '-' -k 3 -r 
     
     exit 0
 fi
@@ -152,8 +178,10 @@ fi
 # random UUID
 ID="$(tail -1 $OPEN_FILE | cut -d "$SEP" -f 1 )"
 ID="$(( ID + 1 ))"
-LINE="$ID ) $TITLE -- CAT: $CAT -- DUE: $DUE_TIME -- PRIOR: $PRIOROTY"
+LINE="$ID )  $TITLE - CAT: $CAT - DUE: $DUE_TIME - PRIORITY: $PRIOROTY"
 
+echo $LINE
+echo $OPEN_FILE
 echo $LINE >> $OPEN_FILE
 
 
