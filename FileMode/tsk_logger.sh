@@ -123,7 +123,7 @@ if [[ $LOG -eq 1 ]]
 then
     DATE_DONE=0
     DATE_OPEN=0
-    OVER_DUE=0 
+    OVER="" 
     if [[ "$FROM_NOW" = ""  ]]
     then
         DATE="$TODAY"
@@ -141,9 +141,11 @@ then
     
     DUE_TIME="DUE: $DATE"
     OVER="$(awk -v time="$DUE_TIME" -F ' - ' '{ if ($3 < time) print $0}' $OPEN_FILE )"
-    printf "${RED}Due Time before $DATE: $( wc -l <<< $OVER ) task(s): ${NC}\n"
-    printf "$OVER\n" | sort -t '-' -k 3 -r 
-    
+    if [[ "$OVER" != "" ]]
+    then
+        printf "${RED}Due Time before $DATE: $( wc -l <<< $OVER ) task(s): ${NC}\n"
+        printf "$OVER\n" | sort -t '-' -k 3 -r 
+    fi 
     exit 0
 fi
 ##############
