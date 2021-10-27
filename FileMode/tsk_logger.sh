@@ -134,15 +134,14 @@ then
     then
         CAT_DONE="$(sed -n -e "/CAT: $CAT/p" $DONE_FILE)"
         CAT_OPEN="$(sed -n -e "/CAT: $CAT/p" $OPEN_FILE)"
-        if [[ "$CAT_DOEN" != "" ]]
+        if [[ $CAT_DOEN != "" ]]
         then 
             printf "${GREEN} Done With CAT: $CAT: $( wc -l <<< $CAT_DONE) task(s):${NC} \n"
             printf "$CAT_DONE" | sort -t '-' -k 3 -r
-            echo ""
         else
             printf "${GREEN} Done With CAT: $CAT: 0 task:${NC} \n"
         fi
-        if [[ "$CAT_OPEN" != "" ]]
+        if [[ $CAT_OPEN != "" ]]
         then
             printf "${YELLOW} Open With CAT: $CAT: $( wc -l <<< $CAT_OPEN) task(s):${NC} \n"
             printf "$CAT_OPEN" | sort -t '-' -k 3 -r
@@ -164,13 +163,24 @@ then
         DATE="$(date --date "$FROM_NOW day" "+%F")"
     fi
     echo ""
+    DATE_DONE=""
+    DATE_OPEN=""
+    DONE_COUNT=0
+    OPEN_COUNT=0
     DATE_DONE="$(sed -n -e "/DONE: $DATE/p" $DONE_FILE)" 
     DATE_OPEN="$(sed -n -e "/DUE: $DATE/p" $OPEN_FILE)"
-    printf "${YELLOW}Due To $DATE: $( wc -l <<< $DATE_OPEN) task(s): ${NC}\n"
-    #sed -n -e "/DUE: $DATE/p" #OPEN_FILE
+    if [[ $DATE_DONE != "" ]]
+    then
+        DONE_COUNT="$(wc -l <<< $DATE_DONE)"
+    fi
+    if [[ $DATE_OPEN != "" ]]
+    then
+        OPEN_COUNT="$(wc -l <<< $DATE_OPEN)"
+    fi
+    printf "${YELLOW}Due To $DATE: $OPEN_COUNT task(s): ${NC}\n"
     printf "$DATE_OPEN\n"
 
-    printf "${GREEN}Done At $DATE: $(wc -l <<< $DATE_DONE) task(s): ${NC}\n"
+    printf "${GREEN}Done At $DATE: $DONE_COUNT task(s): ${NC}\n"
     sed -n -e "/DONE: $DATE/p" $DONE_FILE
     
     DUE_TIME="DUE: $DATE"
