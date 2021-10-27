@@ -7,11 +7,15 @@
 TITLE=""
 FROM_NOW=""
 NUMBER=0
-LIST=0
+LOG=0
 PRIOROTY="Normal"
-CAT="N/A"
+CAT="no cat"
+IS_DONE=0
 BASE_DIR="$HOME/.my_tasks"
-
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
 
 PARAMS=""
 while (( "$#" )); do
@@ -29,8 +33,9 @@ case "$1" in
     NUMBER="$2"
     shift
     ;;
--l|--lsit)
-    LIST=1
+-l|--log)
+    LOG=1
+    FROM_NOW="$2"
     shift
     ;;
 -p|--priority)
@@ -59,7 +64,62 @@ DONE_FILE="$YEAR_DIR/Done.log"
 OPEN_FILE="$YEAR_DIR/Open.log"
 SEP=")"
 
+#####################
+# Set Done 
+#####################
+if [[ $IS_DONE -ne 0 ]]
+then
+    if [[ $NUMBER -eq 0  ]]
+    then 
+        echo "Please specify task number to set done"
+    fi
+    if [[ ! -f $DONE_FILE ]]
+    then 
+        touch $DONE_FILE
+    fi
 
+    TASK=""
+    TASK="$(sed -n -e "/^$NUMBER )/p" $OPEN_FILE)"
+    if [[ $TASK = "" ]]
+    then
+        echo "No such task is Open"
+        echo "TASK: number: $NUMBER, task found: $TASK"
+        exit 1
+    fi
+    echo "TASK: $TASK, set to done."
+    sed -i "/$TASK/d" $OPEN_FILE
+    echo "$TASK DONE: $TODAY" >> $DONE_FILE
+    exit 0 
+fi
+
+
+if [[ $LOG -eq 1 ]]
+then
+    DATE_DONE=0
+    DATE_OPEN=0
+    OVER_DUE=0 
+    if [[ "$FROM_NOW" = ""  ]]
+    then
+        DATE="$TODAY"
+    else
+        DATE="$(date --date "$FROM_NOW day" "+%F")"
+    fi
+    echo ""
+    DATE_DONE="$(sed -n -e "/DONE: $DATE/p" $DONE_FILE | wc -l)" 
+    DATE_OPEN="$(sed -n -e "/DUE: $DATE/p" $OPEN_FILE | wc -l )"
+    printf "${YELLOW}Due To $DATE: $DATE_OPEN task(s): ${NC}\n"
+    sed -n -e "/DUE: $DATE/p" $OPEN_FILE
+   
+    printf "${GREEN}Done At $DATE: $DATE_DONE task(s): ${NC}\n"
+    sed -n -e "/DONE: $DATE/p" $DONE_FILE
+    
+    DUE_TIME="DUE: $DATE"
+    OVER="$(awk -v time="$DUE_TIME" -F ' -- ' '{ if ($3 < time) print $0}' $OPEN_FILE | wc -l)"
+    printf "${RED}Due Time before $DATE: $OVER task(s): ${NC}\n"
+    awk -v time="$DUE_TIME" -F ' -- ' '{ if ($3 < time) print $0 }' $OPEN_FILE
+    
+    exit 0
+fi
 ##############
 # check for the directory in $BASE_DIR
 # In later versions I must add Config 
