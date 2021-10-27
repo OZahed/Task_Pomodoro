@@ -143,7 +143,7 @@ then
     OVER="$(awk -v time="$DUE_TIME" -F ' - ' '{ if ($3 < time) print $0}' $OPEN_FILE )"
     if [[ "$OVER" != "" ]]
     then
-        printf "${RED}Due Time before $DATE: $( wc -l <<< $OVER ) task(s): ${NC}\n"
+        printf "${RED}Open tasks with Due Time before $DATE: $( wc -l <<< $OVER ) task(s): ${NC}\n"
         printf "$OVER\n" | sort -t '-' -k 3 -r 
     fi 
     exit 0
@@ -180,10 +180,4 @@ fi
 # random UUID
 ID="$(tail -1 $OPEN_FILE | cut -d "$SEP" -f 1 )"
 ID="$(( ID + 1 ))"
-LINE="$ID )  $TITLE - CAT: $CAT - DUE: $DUE_TIME - PRIORITY: $PRIOROTY"
-
-echo $LINE
-echo $OPEN_FILE
-echo $LINE >> $OPEN_FILE
-
-
+echo "$ID )  $TITLE - CAT: $CAT - DUE: $DUE_TIME - PRIORITY: $PRIOROTY" >> $OPEN_FILE
