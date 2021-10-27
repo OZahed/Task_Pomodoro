@@ -1,13 +1,14 @@
 #! /bin/bash
 # TODO: [X] add report 
-# TODO: [ ] calculate once 
-
+# TODO: [X] calculate once 
+# TODO: [X] add category log
+# TODO: [ ] add priority log 
 TITLE=""
 FROM_NOW=""
 NUMBER=0
 LOG=0
 PRIOROTY="Normal"
-CAT="no cat"
+CAT="none"
 IS_DONE=0
 BASE_DIR="$HOME/.my_tasks"
 RED='\033[1;31m'
@@ -69,6 +70,10 @@ see tasks:
         if no number is provided It will show today's log
         n : Number of days from now. example: tsk_logger log 7 shows all open \
             tasks within 7 days
+
+        -c or --category <category> : returns categories log
+        * -c should be used without from now \
+        optin *
 set a task to done:
     tsk_logger -d  or done <ID>
         ID: Number of task that will be shown with logs
@@ -124,19 +129,48 @@ then
     DATE_DONE=0
     DATE_OPEN=0
     OVER="" 
+
+    if [[ "$CAT" != "none" ]]
+    then
+        CAT_DONE="$(sed -n -e "/CAT: $CAT/p" $DONE_FILE)"
+        CAT_OPEN="$(sed -n -e "/CAT: $CAT/p" $OPEN_FILE)"
+        if [[ "$CAT_DOEN" != "" ]]
+        then 
+            printf "${GREEN} Done With CAT: $CAT: $( wc -l <<< $CAT_DONE) task(s):${NC} \n"
+            printf "$CAT_DONE" | sort -t '-' -k 3 -r
+            echo ""
+        else
+            printf "${GREEN} Done With CAT: $CAT: 0 task:${NC} \n"
+        fi
+        if [[ "$CAT_OPEN" != "" ]]
+        then
+            printf "${YELLOW} Open With CAT: $CAT: $( wc -l <<< $CAT_OPEN) task(s):${NC} \n"
+            printf "$CAT_OPEN" | sort -t '-' -k 3 -r
+            echo""
+        else 
+            printf "${YELLOW} Open With CAT: $CAT: 0 task(s):${NC} \n"
+        fi
+        exit 0
+    fi
     if [[ "$FROM_NOW" = ""  ]]
     then
         DATE="$TODAY"
     else
+        if [[ ! $FROM_NOW =~ ^[0-9]+$ ]]
+        then 
+            echo "N days for log, be a number"
+            exit 1
+        fi
         DATE="$(date --date "$FROM_NOW day" "+%F")"
     fi
     echo ""
-    DATE_DONE="$(sed -n -e "/DONE: $DATE/p" $DONE_FILE | wc -l)" 
-    DATE_OPEN="$(sed -n -e "/DUE: $DATE/p" $OPEN_FILE | wc -l )"
-    printf "${YELLOW}Due To $DATE: $DATE_OPEN task(s): ${NC}\n"
-    sed -n -e "/DUE: $DATE/p" $OPEN_FILE
-   
-    printf "${GREEN}Done At $DATE: $DATE_DONE task(s): ${NC}\n"
+    DATE_DONE="$(sed -n -e "/DONE: $DATE/p" $DONE_FILE)" 
+    DATE_OPEN="$(sed -n -e "/DUE: $DATE/p" $OPEN_FILE)"
+    printf "${YELLOW}Due To $DATE: $( wc -l <<< $DATE_OPEN) task(s): ${NC}\n"
+    #sed -n -e "/DUE: $DATE/p" #OPEN_FILE
+    printf "$DATE_OPEN\n"
+
+    printf "${GREEN}Done At $DATE: $(wc -l <<< $DATE_DONE) task(s): ${NC}\n"
     sed -n -e "/DONE: $DATE/p" $DONE_FILE
     
     DUE_TIME="DUE: $DATE"
@@ -174,10 +208,15 @@ if [[ $FROM_NOW = "" ]]
 then
     DUE_TIME="$TODAY"
 else
+    if [[ ! $FROM_NOW =~ ^[0-9]+$ ]]
+    then
+        echo "-du N: N should be a number"
+        exit 1
+    fi
     DUE_TIME="$(date --date "$FROM_NOW day" "+%F" )"
 fi
 
-# random UUID
+# Finding the last Id and incrementing it by one
 ID="$(tail -1 $OPEN_FILE | cut -d "$SEP" -f 1 )"
-ID="$(( ID + 1 ))"
+((ID++))
 echo "$ID )  $TITLE - CAT: $CAT - DUE: $DUE_TIME - PRIORITY: $PRIOROTY" >> $OPEN_FILE
