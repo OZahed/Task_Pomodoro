@@ -112,7 +112,6 @@ YEAR_DIR="$BASE_DIR/$YEAR"
 DONE_FILE="$YEAR_DIR/Done.log"
 OPEN_FILE="$YEAR_DIR/Open.log"
 DEL="|"
-SEP=")"
 
 #####################
 # Set Done 
@@ -129,7 +128,7 @@ then
     fi
 
     TASK=""
-    TASK="$(sed -n -e "/^$NUMBER )/p" $OPEN_FILE)"
+    TASK="$(sed -n -e "/^$NUMBER $DEL/p" $OPEN_FILE)"
     if [[ $TASK = "" ]]
     then
         echo "No such task is Open"
@@ -138,7 +137,7 @@ then
     fi
     echo "TASK: $TASK, set to done."
     sed -i "/$TASK/d" $OPEN_FILE
-    echo "$TASK DONE: $TODAY" >> $DONE_FILE
+    echo "$TASK $DEL DONE: $TODAY" >> $DONE_FILE
     exit 0 
 fi
 
@@ -156,14 +155,14 @@ then
         if [[ $CAT_DOEN != "" ]]
         then 
             printf "${GREEN} Done With CAT: $CAT: $( wc -l <<< $CAT_DONE) task(s):${NC} \n"
-            printf "$CAT_DONE" | sort -t "$DEL" -k 3 -r | pretty_csv
+            printf "$CAT_DONE" | sort -t "$DEL" -k 4 -r | pretty_csv
         else
             printf "${GREEN} Done With CAT: $CAT: 0 task:${NC} \n"
         fi
         if [[ $CAT_OPEN != "" ]]
         then
             printf "${YELLOW} Open With CAT: $CAT: $( wc -l <<< $CAT_OPEN) task(s):${NC} \n"
-            printf "$CAT_OPEN" | sort -t "$DEL" -k 3 -r | pretty_csv
+            printf "$CAT_OPEN" | sort -t "$DEL" -k 4 -r | pretty_csv
             echo""
         else 
             printf "${YELLOW} Open With CAT: $CAT: 0 task(s):${NC} \n"
@@ -203,11 +202,11 @@ then
     sed -n -e "/DONE: $DATE/p" $DONE_FILE | pretty_csv
     
     DUE_TIME=" DUE: $DATE"
-    OVER="$(awk -v time="$DUE_TIME" -F "$DEL" '{ if ($3 < time) print $0}' $OPEN_FILE )"
+    OVER="$(awk -v time="$DUE_TIME" -F "$DEL" '{ if ($4 < time) print $0}' $OPEN_FILE )"
     if [[ "$OVER" != "" ]]
     then
         printf "${RED}Open tasks with Due Time before $DATE: $( wc -l <<< $OVER ) task(s): ${NC}\n"
-        printf "$OVER\n" | sort -t "$DEL" -k 3 -r | pretty_csv
+        printf "$OVER\n" | sort -t "$DEL" -k 4 -r | pretty_csv
     fi 
     exit 0
 fi
@@ -220,7 +219,7 @@ then
        echo "error: remove needs an id to work"
         exit 1
     fi 
-    sed -i "/$RM_ID ) /d" $OPEN_FILE
+    sed -i "/$RM_ID $DEL /d" $OPEN_FILE
     exit 0 
 fi 
 ##############
@@ -261,7 +260,7 @@ then
     fi
 
     # Finding the last Id and incrementing it by one
-    ID="$(tail -1 $OPEN_FILE | cut -d "$SEP" -f 1 )"
+    ID="$(tail -1 $OPEN_FILE | cut -d "$DEL" -f 1 )"
     ((ID++))
-    echo "$ID ) $TITLE $DEL cat: $CAT $DEL DUE: $DUE_TIME $DEL priority: $PRIOROTY" >> $OPEN_FILE
+    echo "$ID $DEL $TITLE $DEL cat: $CAT $DEL DUE: $DUE_TIME $DEL priority: $PRIOROTY" >> $OPEN_FILE
 fi
