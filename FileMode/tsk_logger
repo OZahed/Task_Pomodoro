@@ -5,15 +5,22 @@ FROM_NOW=""
 NUMBER=0
 LOG=0
 RM=0
-PRIOROTY="normal"
-CAT="none"
 IS_DONE=0
-BASE_DIR="$HOME/.my_tasks"
 RED='\033[1;31m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 ADD=0
+
+PRIOROTY="n" #normal
+CAT="none"
+BASE_DIR="$HOME/.my_tasks"
+TODAY="$(date "+%F")"
+YEAR="$(date "+%Y")"
+YEAR_DIR="$BASE_DIR/$YEAR"
+DONE_FILE="$YEAR_DIR/Done.log"
+OPEN_FILE="$YEAR_DIR/Open.log"
+DEL="|"
 
 PARAMS=""
 while (( "$#" )); do
@@ -26,7 +33,7 @@ case "$1" in
     FROM_NOW="$2"
     shift
     ;;
--d|done)
+done)
     IS_DONE=1
     NUMBER="$2"
     shift
@@ -103,15 +110,6 @@ How it works:
 "
     exit 1
 fi
-
-###
-# We are going to keep data from Monday to monday in each Dir
-TODAY="$(date "+%F")"
-YEAR="$(date "+%Y")"
-YEAR_DIR="$BASE_DIR/$YEAR"
-DONE_FILE="$YEAR_DIR/Done.log"
-OPEN_FILE="$YEAR_DIR/Open.log"
-DEL="|"
 
 #####################
 # Set Done 
