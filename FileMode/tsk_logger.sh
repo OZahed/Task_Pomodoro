@@ -1,13 +1,11 @@
 #! /bin/bash
-# TODO: [X] add report 
-# TODO: [X] calculate once 
-# TODO: [X] add category log
-# TODO: [ ] add priority log 
+
 TITLE=""
 FROM_NOW=""
 NUMBER=0
 LOG=0
-PRIOROTY="Normal"
+RM=0
+PRIOROTY="normal"
 CAT="none"
 IS_DONE=0
 BASE_DIR="$HOME/.my_tasks"
@@ -15,6 +13,7 @@ RED='\033[1;31m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
+ADD=0
 
 PARAMS=""
 while (( "$#" )); do
@@ -32,17 +31,28 @@ case "$1" in
     NUMBER="$2"
     shift
     ;;
--l|log)
+ls|log)
     LOG=1
     FROM_NOW="$2"
     shift
     ;;
+rm|remove)
+    RM=1
+    RM_ID="$2"
+    shift
+    ;;
+add)
+    ADD=1
+    shift
+    ;;
 -p|--priority)
     PRIOROTY="$2"
+    PRIOROTY="$(echo "$PRIOROTY" | sed -e 's/\(.*\)/\L\1/')"
     shift
     ;;
 -c|--category)
     CAT="$2"
+    CAT="$(echo "$CAT" | sed -e 's/\(.*\)/\L\1/')"
     shift
     ;;
 *)
@@ -53,18 +63,18 @@ esac
 done
 eval set -- "$PARAMS"
 
-if  [[ $IS_DONE -eq 0 && $LOG -eq 0 && "$TITLE" = "" ]]
+if  [[ $IS_DONE -eq 0 && $LOG -eq 0 && $ADD -eq 0 && $RM -eq 0 ]]
 then
     echo "basic usage:
 add new task:
-    tsk_logger -t or title <title> [options]
+    tsk_logger add [-t or title] '<title>' [options]
         options:
             -c  or --category <category> : String
             -p or --priority <priority value> : String 
             -du or --due-time <N> : number of days from now
 
 see tasks: 
-    tsk_logger -l or log <optional number>
+    tsk_logger [-l or ls or log] <optional number>
     without options it shows todays log
     options:
         if no number is provided It will show today's log
@@ -78,12 +88,16 @@ set a task to done:
     tsk_logger -d  or done <ID>
         ID: Number of task that will be shown with logs
 
+remove a task:
+    tsk_logger [-r or rm or remove] N : N is Id of the open task
+    -r or rm or remove will remove an 'Open' task with Id
+
 How it works: 
     All tasks are stored into ~/.my_tasks/<YEAR>/Open.log and Done.log
     to search through tasks it uses awk and sed
     to set done or count tasks it uses sed
 "
-exit 1
+    exit 1
 fi
 
 ###
@@ -192,41 +206,57 @@ then
     fi 
     exit 0
 fi
+
+
+if [[ $RM -eq 1 ]]
+then
+    if [[ ! $RM_ID =~ ^[0-9]+$ ]]
+    then 
+       echo "error: remove needs an id to work"
+        exit 1
+    fi 
+    sed -i "/$RM_ID )/d" $OPEN_FILE
+    exit 0 
+fi 
 ##############
 # check for the directory in $BASE_DIR
 # In later versions I must add Config 
 ##############
-if [[ ! -d "$BASE_DIR" ]]
-then
-    mkdir $BASE_DIR
-fi
 
-if [[ ! -d "$YEAR_DIR" ]]
-then 
-    mkdir $YEAR_DIR
-    touch $OPEN_FILE
-    touch $DONE_FILE
-fi
-
-if [[ $TITLE = "" ]]
-then 
-    echo "Can not add an empty task" 
-    exit 1
-fi
-
-if [[ $FROM_NOW = "" ]]
-then
-    DUE_TIME="$TODAY"
-else
-    if [[ ! $FROM_NOW =~ ^[0-9]+$ ]]
+if [[ $ADD -eq 1 ]]
+then  
+    if [[ ! -d "$BASE_DIR" ]]
     then
-        echo "-du N: N should be a number"
+        mkdir $BASE_DIR
+    fi
+
+    if [[ ! -d "$YEAR_DIR" ]]
+    then 
+        mkdir $YEAR_DIR
+        touch $OPEN_FILE
+        touch $DONE_FILE
+    fi
+
+    if [[ $TITLE = "" ]]
+    then 
+        echo "Can not add an empty task" 
         exit 1
     fi
-    DUE_TIME="$(date --date "$FROM_NOW day" "+%F" )"
-fi
 
-# Finding the last Id and incrementing it by one
-ID="$(tail -1 $OPEN_FILE | cut -d "$SEP" -f 1 )"
-((ID++))
-echo "$ID )  $TITLE - CAT: $CAT - DUE: $DUE_TIME - PRIORITY: $PRIOROTY" >> $OPEN_FILE
+    if [[ $FROM_NOW = "" ]]
+    then
+        DUE_TIME="$TODAY"
+    else
+        if [[ ! $FROM_NOW =~ ^[0-9]+$ ]]
+        then
+            echo "-du N: N should be a number"
+            exit 1
+        fi
+        DUE_TIME="$(date --date "$FROM_NOW day" "+%F" )"
+    fi
+
+    # Finding the last Id and incrementing it by one
+    ID="$(tail -1 $OPEN_FILE | cut -d "$SEP" -f 1 )"
+    ((ID++))
+    echo "$ID )  $TITLE - CAT: $CAT - DUE: $DUE_TIME - PRIORITY: $PRIOROTY" >> $OPEN_FILE
+fi
