@@ -202,8 +202,8 @@ then
     printf "${GREEN}Done At $DATE: $DONE_COUNT task(s): ${NC}\n"
     sed -n -e "/DONE: $DATE/p" $DONE_FILE | pretty_csv
     
-    DUE_TIME="DUE: $DATE"
-    OVER="$(awk -v time="$DUE_TIME" -F ' - ' '{ if ($3 < time) print $0}' $OPEN_FILE )"
+    DUE_TIME=" DUE: $DATE"
+    OVER="$(awk -v time="$DUE_TIME" -F "$DEL" '{ if ($3 < time) print $0}' $OPEN_FILE )"
     if [[ "$OVER" != "" ]]
     then
         printf "${RED}Open tasks with Due Time before $DATE: $( wc -l <<< $OVER ) task(s): ${NC}\n"
@@ -263,5 +263,5 @@ then
     # Finding the last Id and incrementing it by one
     ID="$(tail -1 $OPEN_FILE | cut -d "$SEP" -f 1 )"
     ((ID++))
-    echo "$ID )  $TITLE - CAT: $CAT - DUE: $DUE_TIME - PRIORITY: $PRIOROTY" >> $OPEN_FILE
+    echo "$ID ) $TITLE $DEL cat: $CAT $DEL DUE: $DUE_TIME $DEL priority: $PRIOROTY" >> $OPEN_FILE
 fi
