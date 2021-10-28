@@ -215,7 +215,7 @@ then
        echo "error: remove needs an id to work"
         exit 1
     fi 
-    sed -i "/$RM_ID )/d" $OPEN_FILE
+    sed -i "/$RM_ID ) /d" $OPEN_FILE
     exit 0 
 fi 
 ##############
