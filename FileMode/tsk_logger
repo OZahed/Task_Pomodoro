@@ -135,7 +135,7 @@ then
     fi
     echo "TASK: $TASK, set to done."
     sed -i "/$TASK/d" $OPEN_FILE
-    echo "$TASK $DEL DONE: $TODAY" >> $DONE_FILE
+    echo "$TASK $DEL done: $TODAY" >> $DONE_FILE
     exit 0 
 fi
 
@@ -183,8 +183,8 @@ then
     DATE_OPEN=""
     DONE_COUNT=0
     OPEN_COUNT=0
-    DATE_DONE="$(sed -n -e "/DONE: $DATE/p" $DONE_FILE)" 
-    DATE_OPEN="$(sed -n -e "/DUE: $DATE/p" $OPEN_FILE)"
+    DATE_DONE="$(sed -n -e "/done: $DATE/p" $DONE_FILE)" 
+    DATE_OPEN="$(sed -n -e "/due: $DATE/p" $OPEN_FILE)"
     if [[ $DATE_DONE != "" ]]
     then
         DONE_COUNT="$(wc -l <<< $DATE_DONE)"
@@ -197,9 +197,9 @@ then
     printf "$DATE_OPEN\n" | pretty_csv
 
     printf "${GREEN}Done At $DATE: $DONE_COUNT task(s): ${NC}\n"
-    sed -n -e "/DONE: $DATE/p" $DONE_FILE | pretty_csv
+    sed -n -e "/done: $DATE/p" $DONE_FILE | pretty_csv
     
-    DUE_TIME=" DUE: $DATE"
+    DUE_TIME=" due: $DATE"
     OVER="$(awk -v time="$DUE_TIME" -F "$DEL" '{ if ($4 < time) print $0}' $OPEN_FILE )"
     if [[ "$OVER" != "" ]]
     then
@@ -217,7 +217,7 @@ then
        echo "error: remove needs an id to work"
         exit 1
     fi 
-    sed -i "/$RM_ID $DEL /d" $OPEN_FILE
+    sed -i "/^$RM_ID $DEL /d" $OPEN_FILE
     exit 0 
 fi 
 ##############
@@ -260,5 +260,5 @@ then
     # Finding the last Id and incrementing it by one
     ID="$(tail -1 $OPEN_FILE | cut -d "$DEL" -f 1 )"
     ((ID++))
-    echo "$ID $DEL $TITLE $DEL cat: $CAT $DEL DUE: $DUE_TIME $DEL priority: $PRIOROTY" >> $OPEN_FILE
+    echo "$ID $DEL $TITLE $DEL category: $CAT $DEL due: $DUE_TIME $DEL priority: $PRIOROTY" >> $OPEN_FILE
 fi
