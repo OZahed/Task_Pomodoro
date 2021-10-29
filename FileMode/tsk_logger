@@ -13,7 +13,8 @@ NC='\033[0m' # No Color
 ADD=0
 
 PRIOROTY="n" #normal
-CAT="none"
+EMPTY_CAT=""
+CAT="$EMPTY_CAT"
 BASE_DIR="$HOME/.my_tasks"
 TODAY="$(date "+%F")"
 YEAR="$(date "+%Y")"
@@ -146,10 +147,10 @@ then
     DATE_OPEN=0
     OVER="" 
 
-    if [[ "$CAT" != "none" ]]
+    if [[ "$CAT" != "$EMPTY_CAT" ]]
     then
-        CAT_DONE="$(sed -n -e "/CAT: $CAT/p" $DONE_FILE)"
-        CAT_OPEN="$(sed -n -e "/CAT: $CAT/p" $OPEN_FILE)"
+        CAT_DONE="$(sed -n -e "/category: $CAT/p" $DONE_FILE)"
+        CAT_OPEN="$(sed -n -e "/category: $CAT/p" $OPEN_FILE)"
         if [[ $CAT_DOEN != "" ]]
         then 
             printf "${GREEN} Done With CAT: $CAT: $( wc -l <<< $CAT_DONE) task(s):${NC} \n"
@@ -173,7 +174,7 @@ then
     else
         if [[ ! $FROM_NOW =~ ^[0-9]+$ ]]
         then 
-            echo "N days for log, be a number"
+            echo "N days for log, is a number"
             exit 1
         fi
         DATE="$(date --date "$FROM_NOW day" "+%F")"
@@ -256,7 +257,10 @@ then
         fi
         DUE_TIME="$(date --date "$FROM_NOW day" "+%F" )"
     fi
-
+    if [[ $CAT -eq $EMPTY_CAT ]] 
+    then
+        CAT="none"
+    fi
     # Finding the last Id and incrementing it by one
     ID="$(tail -1 $OPEN_FILE | cut -d "$DEL" -f 1 )"
     ((ID++))
