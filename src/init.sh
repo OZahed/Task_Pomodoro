@@ -7,7 +7,7 @@ then
 fi
 
 DB="$2"
-
+echo $DB
 if [[ -z "$DB" ]]
 then 
     echo "No DB Provided"
@@ -15,11 +15,11 @@ then
 fi
 
 read -p "name: " NAME
-read -p "username: (default = <your name>) " USERNAME
+read -p "username: (default = 'your name') " USERNAME
 read -p "email: " EMAIL
-read -s -p "password:(default = <''>)  " PASSWORD
+read -s -p "password:(default = '')  " PASSWORD
 
-echo $PASSWORD
+#echo $PASSWORD
 ##########################
 #   if email is valid    #
 ##########################
@@ -36,23 +36,23 @@ then
     echo "you provided no password"
 fi
 
-
 PREFIX="usr"
-HASH="$(htpasswd -nbBC 10 $PREFIX $PASSWORD)"
+## usign bcrypt
+HASH="$(htpasswd -nbBC 10 $PREFIX "$PASSWORD" )"
 
 ########################
 #      create DB       #
 ########################
-DIR="./DATA"
-DB="./DATA/Task.db"
+DIR="$(dirname $DB)"
 
 if [[ ! -d $DIR ]]
 then 
-    mkdir $DIR 
+    mkdir "$DIR" 
 fi
 
 if [[ ! -f $DB  ]]
 then
+    touch "$DB"
     sqlite3 $DB < create_data.sql
 fi
 

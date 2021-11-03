@@ -11,6 +11,8 @@ YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 ADD=0
+POMO=0
+DEFAULT_POMO_MIN=25
 
 PRIOROTY="n" #normal
 EMPTY_CAT=""
@@ -53,6 +55,9 @@ add)
     ADD=1
     shift
     ;;
+pomo)
+    POMO=1
+    shift;;
 -p|--priority)
     PRIOROTY="$2"
     PRIOROTY="$(echo "$PRIOROTY" | sed -e 's/\(.*\)/\L\1/')"
@@ -75,7 +80,7 @@ function pretty_csv {
     column -t  -s "$DEL" 
 }
 
-if  [[ $IS_DONE -eq 0 && $LOG -eq 0 && $ADD -eq 0 && $RM -eq 0 ]]
+if  [[ $IS_DONE -eq 0 && $LOG -eq 0 && $ADD -eq 0 && $RM -eq 0 && $POMO -eq 0 ]]
 then
     echo "basic usage:
 add new task:
@@ -110,6 +115,46 @@ How it works:
     to set done or count tasks it uses sed
 "
     exit 1
+fi
+
+
+##########################
+# check for pomo action  #
+##########################
+
+if [[ $POMO -eq 1 ]]
+then 
+    if [[ "$TITLE" = "" ]]
+    then
+        echo "title should not be empty"
+        exit 1
+    fi 
+    re='^[0-9]+$'
+    if ! [[ $FROM_NOW =~ $re ]] 
+    then
+        if [[ "$FROM_NOW" != "" ]]
+        then
+            echo $FROM_NOW
+            echo "duration should be a number"
+            exit 1
+        else
+            # empty From now
+            SECOND="$(( 60 * $DEFAULT_POMO_MIN ))"
+        fi
+    else 
+        SECOND="$(( 60 * $FROM_NOW ))"
+    fi
+    printf "\nFocus on ${GREEN}$TITLE ${NC} for ${GREEN} $FROM_NOW ${NC} minute(s).\n"
+    echo ""
+    while [  $SECOND -gt 0 ]
+    do
+        MINS=$(( SECOND / 60 ))
+        SEC=$(( SECOND - MINS*60 ))
+        printf "\r$TITLE:\t${YELLOW}$MINS : $SEC ${NC}."  $((SECOND--))
+        sleep 1s
+    done
+    printf "\nSession for ${GREEN}$TITLE ${NC} ended.\n"
+    exit 0
 fi
 
 #####################
@@ -257,11 +302,12 @@ then
         fi
         DUE_TIME="$(date --date "$FROM_NOW day" "+%F" )"
     fi
-    if [[ $CAT -eq $EMPTY_CAT ]] 
+    if [[ "$CAT" = "" ]] 
     then
         CAT="none"
     fi
     # Finding the last Id and incrementing it by one
+    
     ID="$(tail -1 $OPEN_FILE | cut -d "$DEL" -f 1 )"
     ((ID++))
     echo "$ID $DEL $TITLE $DEL category: $CAT $DEL due: $DUE_TIME $DEL priority: $PRIOROTY" >> $OPEN_FILE

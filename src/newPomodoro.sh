@@ -63,7 +63,7 @@ fi
 
 if [[ -z "$NAME" ]]
 then
-    echo "Title can't be empty"
+    echo "Name (-n) can't be empty"
     exit 1
 fi 
 
