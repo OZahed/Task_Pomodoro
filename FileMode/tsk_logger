@@ -20,9 +20,10 @@ CAT="$EMPTY_CAT"
 BASE_DIR="$HOME/.my_tasks"
 TODAY="$(date "+%F")"
 YEAR="$(date "+%Y")"
-YEAR_DIR="$BASE_DIR/$YEAR"
-DONE_FILE="$YEAR_DIR/Done.log"
-OPEN_FILE="$YEAR_DIR/Open.log"
+YEAR_DIR=$BASE_DIR/$YEAR
+DONE_FILE=$YEAR_DIR/Done.log
+OPEN_FILE=$YEAR_DIR/Open.log
+POMO_FILE=$YEAR_DIR/Pomo.log
 DEL="|"
 
 PARAMS=""
@@ -156,6 +157,11 @@ then
     printf "\nSession for ${GREEN}$TITLE ${NC} ended.\n"
     paplay ./bell2.wav
     notify-send -t 400 -u normal -i "$(pwd)/tomato.png" "Pomodoro sessoin" "$TITLE done. take a 5 min rest."
+    
+    [ ! -d $YEAR_DIR ] && mkdir -p $YEAR_DIR; 
+    [ ! -f $POMO_FILE ]  && touch $POMO_FILE;
+    
+    echo "$(date "+%F")$DEL$TITLE$DEL$DUE_TIME minutes" >> $POMO_FILE
     exit 0
 fi
 
