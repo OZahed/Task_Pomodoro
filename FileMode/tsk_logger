@@ -118,6 +118,16 @@ How it works:
     exit 1
 fi
 
+#############################
+# check existence of a file #
+#############################
+
+function make_if_not_exists() {
+    DIRNAME="$(dirname $1)"
+    [ ! -d DIRNAME ] && mkdir -p $DIRNAME;
+    [ ! -f $1 ] && touch $1;
+}
+
 
 ##########################
 # check for pomo action  #
@@ -158,9 +168,7 @@ then
     paplay ./bell2.wav
     notify-send -t 400 -u normal -i "$(pwd)/tomato.png" "Pomodoro sessoin" "$TITLE done. take a 5 min rest."
     
-    [ ! -d $YEAR_DIR ] && mkdir -p $YEAR_DIR; 
-    [ ! -f $POMO_FILE ]  && touch $POMO_FILE;
-    
+    make_if_not_exists $POMO_FILE;
     echo "$(date "+%F")$DEL$TITLE$DEL$DUE_TIME minutes" >> $POMO_FILE
     exit 0
 fi
@@ -174,11 +182,6 @@ then
     then 
         echo "Please specify task number to set done"
     fi
-    if [[ ! -f $DONE_FILE ]]
-    then 
-        touch $DONE_FILE
-    fi
-
     TASK=""
     TASK="$(sed -n -e "/^$NUMBER $DEL/p" $OPEN_FILE)"
     if [[ $TASK = "" ]]
@@ -189,6 +192,8 @@ then
     fi
     echo "TASK: $TASK, set to done."
     sed -i "/$TASK/d" $OPEN_FILE
+
+    make_if_not_exists $DONE_FILE
     echo "$TASK $DEL done: $TODAY" >> $DONE_FILE
     exit 0 
 fi
@@ -281,18 +286,6 @@ fi
 
 if [[ $ADD -eq 1 ]]
 then  
-    if [[ ! -d "$BASE_DIR" ]]
-    then
-        mkdir $BASE_DIR
-    fi
-
-    if [[ ! -d "$YEAR_DIR" ]]
-    then 
-        mkdir $YEAR_DIR
-        touch $OPEN_FILE
-        touch $DONE_FILE
-    fi
-
     if [[ $TITLE = "" ]]
     then 
         echo "Can not add an empty task" 
@@ -316,7 +309,9 @@ then
     fi
     # Finding the last Id and incrementing it by one
     
-    ID="$(tail -1 $OPEN_FILE | cut -d "$DEL" -f 1 )"
+    [ -f $OPEN_FILE ] && ID="$(tail -1 $OPEN_FILE | cut -d "$DEL" -f 1 )" || ID=0
     ((ID++))
+    
+    make_if_not_exists $OPEN_FILE
     echo "$ID $DEL $TITLE $DEL category: $CAT $DEL due: $DUE_TIME $DEL priority: $PRIOROTY" >> $OPEN_FILE
 fi
