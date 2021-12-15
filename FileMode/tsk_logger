@@ -1,5 +1,6 @@
 #! /bin/bash
 
+SCRIPT_PATH=$(dirname realpath $0)
 TITLE=""
 FROM_NOW=""
 NUMBER=0
@@ -165,8 +166,8 @@ then
         sleep 1s
     done
     printf "\nSession for ${GREEN}$TITLE ${NC} ended.\n"
-    paplay ./bell.wav
-    notify-send -t 400 -u normal -i "$(pwd)/tomato.png" "Pomodoro sessoin" "$TITLE done. take a 5 min rest."
+    paplay "$SCRIPT_PATH/bell.wav
+    notify-send -t 400 -u normal -i $SCRIPT_PATH/tomato.png "Pomodoro sessoin" "$TITLE done. take a 5 min rest."
     
     make_if_not_exists $POMO_FILE;
     echo "$(date "+%F")$DEL$TITLE$DEL$DUE_TIME minutes" >> $POMO_FILE
@@ -209,7 +210,7 @@ then
     then
         CAT_DONE="$(sed -n -e "/category: $CAT/p" $DONE_FILE)"
         CAT_OPEN="$(sed -n -e "/category: $CAT/p" $OPEN_FILE)"
-        if [[ $CAT_DOEN != "" ]]
+        if [[ ! -Z $CAT_DOEN ]]
         then 
             printf "${GREEN} Done With CAT: $CAT: $( wc -l <<< $CAT_DONE) task(s):${NC} \n"
             printf "$CAT_DONE" | sort -t "$DEL" -k 4 -r | pretty_csv
