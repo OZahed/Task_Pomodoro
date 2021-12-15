@@ -138,7 +138,7 @@ make_if_not_exists $POMO_FILE
 
 if [[ $POMO -eq 1 ]]
 then 
-    if [[ ! -z $TITLE ]]
+    if [[ "$TITLE" = "" ]]
     then
         echo "title should not be empty"
         exit 1
@@ -146,7 +146,7 @@ then
     re='^[0-9]+$'
     if ! [[ $FROM_NOW =~ $re ]] 
     then
-        if [[ ! -z $FROM_NOW ]]
+        if [[ "$FROM_NOW" != "" ]]
         then
             echo $FROM_NOW
             echo "duration should be a number"
@@ -169,7 +169,7 @@ then
     done
     printf "Session for ${GREEN}$TITLE ${NC} ended.\n";
     paplay $SCRIPT_PATH/bell.wav;
-    notify-send -t 400 -u critical -i $SCRIPT_PATH/tomato.png "Pomodoro sessoin" "$TITLE session ended. take a 5 min rest."
+    notify-send -t 400 -u normal -i $SCRIPT_PATH/tomato.png "Pomodoro sessoin" "$TITLE done. take a 5 min rest."
     
     echo "$(date "+%F")$DEL$TITLE$DEL$DUE_TIME minutes" >> $POMO_FILE
     exit 0
@@ -186,7 +186,7 @@ then
     fi
     TASK=""
     TASK="$(sed -n -e "/^$NUMBER $DEL/p" $OPEN_FILE)"
-    if [[ ! -z $TASK ]]
+    if [[ $TASK = "" ]]
     then
         echo "No such task is Open"
         echo "TASK: number: $NUMBER, task found: $TASK"
@@ -210,14 +210,14 @@ then
     then
         CAT_DONE="$(sed -n -e "/category: $CAT/p" $DONE_FILE)"
         CAT_OPEN="$(sed -n -e "/category: $CAT/p" $OPEN_FILE)"
-        if [[ ! -z $CAT_DOEN ]]
+        if [[ ! -Z $CAT_DOEN ]]
         then 
             printf "${GREEN} Done With CAT: $CAT: $( wc -l <<< $CAT_DONE) task(s):${NC} \n"
             printf "$CAT_DONE" | sort -t "$DEL" -k 4 -r | pretty_csv
         else
             printf "${GREEN} Done With CAT: $CAT: 0 task:${NC} \n"
         fi
-        if [[ ! -z $CAT_OPEN  ]]
+        if [[ $CAT_OPEN != "" ]]
         then
             printf "${YELLOW} Open With CAT: $CAT: $( wc -l <<< $CAT_OPEN) task(s):${NC} \n"
             printf "$CAT_OPEN" | sort -t "$DEL" -k 4 -r | pretty_csv
@@ -227,7 +227,7 @@ then
         fi
         exit 0
     fi
-    if [[ ! -z $FROM_NOW  ]]
+    if [[ "$FROM_NOW" = ""  ]]
     then
         DATE="$TODAY"
     else
@@ -245,11 +245,11 @@ then
     OPEN_COUNT=0
     DATE_DONE="$(sed -n -e "/done: $DATE/p" $DONE_FILE)" 
     DATE_OPEN="$(sed -n -e "/due: $DATE/p" $OPEN_FILE)"
-    if [[ ! -z $DATE_DONE  ]]
+    if [[ $DATE_DONE != "" ]]
     then
         DONE_COUNT="$(wc -l <<< $DATE_DONE)"
     fi
-    if [[ ! -z $DATE_OPEN ]]
+    if [[ $DATE_OPEN != "" ]]
     then
         OPEN_COUNT="$(wc -l <<< $DATE_OPEN)"
     fi
@@ -261,7 +261,7 @@ then
     
     DUE_TIME=" due: $DATE"
     OVER="$(awk -v time="$DUE_TIME" -F "$DEL" '{ if ($4 < time) print $0}' $OPEN_FILE )"
-    if [[ ! -z $OVE ]]
+    if [[ "$OVER" != "" ]]
     then
         printf "${RED}Open tasks with Due Time before $DATE: $( wc -l <<< $OVER ) task(s): ${NC}\n"
         printf "$OVER\n" | sort -t "$DEL" -k 4 -r | pretty_csv
@@ -287,13 +287,13 @@ fi
 
 if [[ $ADD -eq 1 ]]
 then  
-    if [[ ! -z $TITLE  ]]
+    if [[ $TITLE = "" ]]
     then 
         echo "Can not add an empty task" 
         exit 1
     fi
 
-    if [[ ! -z $FROM_NOW  ]]
+    if [[ $FROM_NOW = "" ]]
     then
         DUE_TIME="$TODAY"
     else
@@ -304,7 +304,7 @@ then
         fi
         DUE_TIME="$(date --date "$FROM_NOW day" "+%F" )"
     fi
-    if [[ ! -z $CAT ]] 
+    if [[ "$CAT" = "" ]] 
     then
         CAT="none"
     fi
