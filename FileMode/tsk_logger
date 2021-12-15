@@ -210,7 +210,7 @@ then
     then
         CAT_DONE="$(sed -n -e "/category: $CAT/p" $DONE_FILE)"
         CAT_OPEN="$(sed -n -e "/category: $CAT/p" $OPEN_FILE)"
-        if [[ ! -Z $CAT_DOEN ]]
+        if [[ "$CAT_DOEN" != "" ]]
         then 
             printf "${GREEN} Done With CAT: $CAT: $( wc -l <<< $CAT_DONE) task(s):${NC} \n"
             printf "$CAT_DONE" | sort -t "$DEL" -k 4 -r | pretty_csv
