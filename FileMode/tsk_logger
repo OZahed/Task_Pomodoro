@@ -165,7 +165,7 @@ then
         sleep 1s
     done
     printf "\nSession for ${GREEN}$TITLE ${NC} ended.\n"
-    paplay ./bell2.wav
+    paplay ./bell.wav
     notify-send -t 400 -u normal -i "$(pwd)/tomato.png" "Pomodoro sessoin" "$TITLE done. take a 5 min rest."
     
     make_if_not_exists $POMO_FILE;
