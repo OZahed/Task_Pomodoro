@@ -167,10 +167,11 @@ then
         printf "\r$TITLE:\t${YELLOW}$MINS : $SEC ${NC}."  $((SECOND--))
         sleep 1s
     done
+    clear 
+
     printf "Session for ${GREEN}$TITLE ${NC} ended.\n";
-    paplay $SCRIPT_PATH/bell.wav;
+    paplay $SCRIPT_PATH/bell.wav &
     notify-send -t 400 -u normal -i $SCRIPT_PATH/tomato.png "Pomodoro sessoin" "$TITLE done. take a 5 min rest."
-    
     echo "$(date "+%F")$DEL$TITLE$DEL$DUE_TIME minutes" >> $POMO_FILE
     exit 0
 fi
