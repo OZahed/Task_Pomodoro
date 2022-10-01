@@ -85,14 +85,15 @@ function pretty_csv {
 if  [[ $IS_DONE -eq 0 && $LOG -eq 0 && $ADD -eq 0 && $RM -eq 0 && $POMO -eq 0 ]]
 then
     echo "basic usage:
-add new task:
+COMMANDS:
+[add]:
     tsk_logger add [-t or title] '<title>' [options]
         options:
             -c  or --category <category> : String
             -p or --priority <priority value> : String 
             -du or --due-time <N> : number of days from now
 
-see tasks: 
+[ls or list]
     tsk_logger [-l or ls or log] <optional number>
     without options it shows todays log
     options:
@@ -103,13 +104,21 @@ see tasks:
         -c or --category <category> : returns categories log
         * -c should be used without from now \
         optin *
-set a task to done:
+
+[done]  
     tsk_logger -d  or done <ID>
         ID: Number of task that will be shown with logs
 
 remove a task:
+[rm]
     tsk_logger [-r or rm or remove] N : N is Id of the open task
     -r or rm or remove will remove an 'Open' task with Id
+
+
+[pomo]
+    tsk_logger pomo [OPTIONS]
+        -t|--title: title
+        -du: session duration in minutes
 
 How it works: 
     All tasks are stored into ~/.my_tasks/<YEAR>/Open.log and Done.log
