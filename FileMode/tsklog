@@ -62,12 +62,10 @@ pomo)
     shift;;
 -p|--priority)
     PRIOROTY="$2"
-    PRIOROTY="$(echo "$PRIOROTY" | sed -e 's/\(.*\)/\L\1/')"
     shift
     ;;
 -c|--category)
     CAT="$2"
-    CAT="$(echo "$CAT" | sed -e 's/\(.*\)/\L\1/')"
     shift
     ;;
 *)
@@ -195,7 +193,7 @@ then
         echo "Please specify task number to set done"
     fi
     TASK=""
-    TASK="$(sed -n -e "/^$NUMBER $DEL/p" $OPEN_FILE)"
+    TASK="$(sed -ne "/^$NUMBER $DEL/p " $OPEN_FILE)"
     if [[ $TASK = "" ]]
     then
         echo "No such task is Open"
@@ -203,7 +201,7 @@ then
         exit 1
     fi
     echo "TASK: $TASK, set to done."
-    sed -i "/$TASK/d" $OPEN_FILE
+    sed -i '' "/$TASK/d" $OPEN_FILE
 
     echo "$TASK $DEL done: $TODAY" >> $DONE_FILE
     exit 0 
@@ -218,8 +216,8 @@ then
 
     if [[ "$CAT" != "$EMPTY_CAT" ]]
     then
-        CAT_DONE="$(sed -n -e "/category: $CAT/p" $DONE_FILE)"
-        CAT_OPEN="$(sed -n -e "/category: $CAT/p" $OPEN_FILE)"
+        CAT_DONE="$(sed -ne "/category: $CAT/p" $DONE_FILE)"
+        CAT_OPEN="$(sed -ne "/category: $CAT/p" $OPEN_FILE)"
         if [[ "$CAT_DOEN" != "" ]]
         then 
             printf "${GREEN} Done With CAT: $CAT: $( wc -l <<< $CAT_DONE) task(s):${NC} \n"
@@ -246,15 +244,15 @@ then
             echo "N days for log, is a number"
             exit 1
         fi
-        DATE="$(date --date "$FROM_NOW day" "+%F")"
+        DATE="$(date -v "+$FROM_NOW"d "+%F")"
     fi
     echo ""
     DATE_DONE=""
     DATE_OPEN=""
     DONE_COUNT=0
     OPEN_COUNT=0
-    DATE_DONE="$(sed -n -e "/done: $DATE/p" $DONE_FILE)" 
-    DATE_OPEN="$(sed -n -e "/due: $DATE/p" $OPEN_FILE)"
+    DATE_DONE="$(sed -ne "/done: $DATE/p" $DONE_FILE)" 
+    DATE_OPEN="$(sed -ne "/due: $DATE/p" $OPEN_FILE)"
     if [[ $DATE_DONE != "" ]]
     then
         DONE_COUNT="$(wc -l <<< $DATE_DONE)"
@@ -287,7 +285,7 @@ then
        echo "error: remove needs an id to work"
         exit 1
     fi 
-    sed -i "/^$RM_ID $DEL /d" $OPEN_FILE
+    sed -i '' "/^$RM_ID $DEL /d" "$OPEN_FILE" && echo -e "removed tsk wiht id: $RM_ID..."
     exit 0 
 fi 
 ##############
@@ -312,7 +310,7 @@ then
             echo "-du N: N should be a number"
             exit 1
         fi
-        DUE_TIME="$(date --date "$FROM_NOW day" "+%F" )"
+        DUE_TIME="$(date -v "+$FROM_NOW"d "+%F" )"
     fi
     if [[ "$CAT" = "" ]] 
     then
