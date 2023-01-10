@@ -1,5 +1,6 @@
 #! /bin/bash
 
+## Global Variables setup
 SCRIPT_PATH=$(dirname $(realpath $0))
 TITLE=""
 FROM_NOW=""
@@ -14,7 +15,6 @@ NC='\033[0m' # No Color
 ADD=0
 POMO=0
 DEFAULT_POMO_MIN=25
-
 PRIOROTY="n" #normal
 EMPTY_CAT=""
 CAT="$EMPTY_CAT"
@@ -26,8 +26,8 @@ DONE_FILE=$YEAR_DIR/Done.log
 OPEN_FILE=$YEAR_DIR/Open.log
 POMO_FILE=$YEAR_DIR/Pomo.log
 DEL="|"
-
 PARAMS=""
+## 
 while (( "$#" )); do
 case "$1" in 
 -t|title)
